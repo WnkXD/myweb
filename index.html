@@ -3,149 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>逆轉魔卡組隊編輯器</title>
+    <title>逆轉魔卡組隊模擬器</title>
     <style>
         :root {
             --bg-color: #1a1a1a;
             --card-bg: #2d2d2d;
             --accent-color: #ffcc00;
             --grid-border: #444;
+            --rarity-gold: #ffcc00;
+            --rarity-purple: #a335ee;
+            --rarity-blue: #0070dd;
+            --rarity-white: #ffffff;
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
             background-color: var(--bg-color);
             color: white;
             margin: 0;
             display: flex;
             height: 100vh;
+            overflow: hidden;
         }
 
-        /* 左側過濾器 */
+        /* 1. 左側：篩選 */
         .sidebar {
-            width: 220px;
+            width: 160px;
             background-color: #111;
             padding: 20px;
             border-right: 1px solid var(--grid-border);
             flex-shrink: 0;
+            overflow-y: auto;
         }
+        .filter-item { margin: 10px 0; cursor: pointer; display: flex; align-items: center; font-size: 13px; }
+        .filter-item input { margin-right: 8px; width: 16px; height: 16px; }
 
-        .filter-group h3 { color: var(--accent-color); font-size: 16px; margin-bottom: 15px; }
-        .filter-item { margin: 12px 0; cursor: pointer; display: flex; align-items: center; font-size: 14px; }
-        .filter-item input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; }
-
-        /* 中間主要區域 */
+        /* 2. 中間：主面板佈局 */
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
             padding: 20px;
-            gap: 20px;
-            overflow-y: auto;
+            background: #1a1a1a;
         }
 
-        .team-container {
+        /* 中間的核心區域：格子 + 統計數據 (紅框位置) */
+        .center-core {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 25px;
-            padding: 20px;
+            flex-direction: row; /* 橫向並排格子與數據 */
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            margin-top: 20px;
         }
 
-        /* 隊長位與成員位共用樣式 */
+        /* 統計長條圖 (紅框位置樣式) */
+        .analysis-panel {
+            width: 260px;
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .stat-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 12px; }
+        .stat-label { width: 60px; flex-shrink: 0; color: #aaa; }
+        .stat-bar-bg { flex: 1; background: #222; height: 6px; border-radius: 3px; overflow: hidden; margin: 0 8px; }
+        .stat-bar-fill { background: var(--accent-color); height: 100%; width: 0%; transition: width 0.3s ease; }
+        .stat-count { width: 20px; text-align: right; font-weight: bold; color: var(--accent-color); }
+
+        /* 格子佈局 */
+        .team-container { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; }
         .slot {
-            width: 75px;
-            height: 75px;
+            width: 70px; height: 70px;
             border: 2px solid var(--grid-border);
             border-radius: 8px;
             background: var(--card-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            overflow: hidden; /* 確保圖片不超出格子 */
-            transition: all 0.2s;
-            background-size: cover;
-            background-position: center;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; background-size: cover; background-position: center;
         }
+        .leader-slot { width: 80px; height: 80px; position: relative; border-width: 3px; }
+        .leader-slot::after { content: "隊長"; position: absolute; right: -40px; top: 30px; color: var(--accent-color); font-weight: bold; font-size: 13px; }
+        .member-grid { display: grid; grid-template-columns: repeat(4, 70px); gap: 10px; }
 
-        .leader-slot {
-            width: 90px;
-            height: 90px;
-            border: 3px solid var(--accent-color);
-            position: relative;
+        /* 3. 右側：英雄卡片詳情 (改回單/雙排取決於寬度) */
+        .info-panel {
+            width: 650px; /* 稍微縮小以挪空間給中間 */
+            background-color: #111;
+            padding: 20px;
+            border-left: 1px solid var(--grid-border);
+            flex-shrink: 0;
+            overflow-y: auto;
         }
-        .leader-slot::after { content: "隊長"; position: absolute; bottom: -22px; font-size: 12px; color: var(--accent-color); font-weight: bold; }
-
-        .member-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 75px);
-            gap: 15px;
+        #teamInfoList { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .info-card {
+            background: #222; padding: 10px; border-radius: 6px;
+            border: 1px solid #333; display: flex; flex-direction: column;
         }
+        .info-hero-img { width: 50px; height: 50px; border-radius: 4px; background-size: cover; margin-bottom: 5px; }
 
-        /* 下方英雄列表 */
-        .hero-picker {
-            background: #0a0a0a;
-            padding: 15px;
-            min-height: 160px;
-            border-top: 2px solid var(--grid-border);
-        }
-
-        .hero-list {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 10px 5px;
-        }
-
+        /* 列表區 */
+        .hero-picker { background: #0a0a0a; padding: 10px; border-top: 1px solid var(--grid-border); }
+        .hero-list { display: flex; gap: 8px; overflow-x: auto; }
         .hero-item {
-            min-width: 65px;
-            height: 65px;
-            background: #333;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            transition: transform 0.1s, border 0.2s;
-            border: 2px solid transparent;
-            background-size: cover;
-            background-position: center;
+            min-width: 55px; height: 55px; background: #333; border-radius: 6px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 10px; border: 2px solid transparent; background-size: cover;
         }
-        .hero-item:hover { transform: translateY(-5px); border-color: var(--accent-color); }
-
-        .filled { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
+        .hero-item.disabled { opacity: 0.1; filter: grayscale(1); }
+        .rarity-gold { border-color: var(--rarity-gold) !important; }
+        .rarity-purple { border-color: var(--rarity-purple) !important; }
+        .rarity-blue { border-color: var(--rarity-blue) !important; }
+        .rarity-white { border-color: var(--rarity-white) !important; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h3>技能類別</h3>
-        <div class="filter-item"><input type="checkbox" class="type-filter" value="star" id="f-star" checked onchange="renderHeroes()"> 勝利之星</div>
-        <div class="filter-item"><input type="checkbox" class="type-filter" value="curse" id="f-curse" checked onchange="renderHeroes()"> 詛咒</div>
-        <div class="filter-item"><input type="checkbox" class="type-filter" value="addcard" id="f-addcard" checked onchange="renderHeroes()"> 換牌</div>
-        <div class="filter-item"><input type="checkbox" class="type-filter" value="addpower" id="f-addpower" checked onchange="renderHeroes()"> 增加祕法能量</div>
-        <div class="filter-item"><input type="checkbox" class="type-filter" value="point" id="f-point" checked onchange="renderHeroes()"> 點數</div>
-        
-        <div class="ad-container" style="margin-top:50px; color:#555; font-size:12px; border:1px dashed #333; padding:10px; text-align:center;">
-            廣告佔位
+        <h3 style="color: var(--accent-color); font-size: 15px; margin-top: 0;">技能篩選</h3>
+        <div style="margin-bottom: 15px;">
+            <button onclick="toggleAllFilters(true)" style="cursor:pointer; padding:2px 8px;">全選</button>
+            <button onclick="toggleAllFilters(false)" style="cursor:pointer; padding:2px 8px;">全取消</button>
+        </div>
+        <div id="filter-group">
+            <div class="filter-item"><input type="checkbox" class="type-filter" value="star" checked onchange="renderHeroes()"> 勝利之星</div>
+            <div class="filter-item"><input type="checkbox" class="type-filter" value="curse" checked onchange="renderHeroes()"> 詛咒技能</div>
+            <div class="filter-item"><input type="checkbox" class="type-filter" value="addcard" checked onchange="renderHeroes()"> 增加換牌</div>
+            <div class="filter-item"><input type="checkbox" class="type-filter" value="addpower" checked onchange="renderHeroes()"> 增加能量</div>
+            <div class="filter-item"><input type="checkbox" class="type-filter" value="point" checked onchange="renderHeroes()"> 增加點數</div>
+            <div class="filter-item"><input type="checkbox" class="type-filter" value="magic" checked onchange="renderHeroes()"> 魔法傷害</div>
+            <div class="filter-item"><input type="checkbox" class="type-filter" value="magicbuff" checked onchange="renderHeroes()"> 法傷增幅</div>
+            <div class="filter-item"><input type="checkbox" class="type-filter" value="lifesteal" checked onchange="renderHeroes()"> 吸血傷害</div>
+            <div class="filter-item"><input type="checkbox" class="type-filter" value="blind" checked onchange="renderHeroes()"> 手牌盲目</div>
+            <div class="filter-item"><input type="checkbox" class="type-filter" value="cover" checked onchange="renderHeroes()"> 遮蓋撲克牌</div>
         </div>
     </div>
 
     <div style="flex:1; display:flex; flex-direction:column;">
         <div class="main-content">
-            <h2 style="text-align:center; color: var(--accent-color);">隊伍模擬器</h2>
-            <div class="team-container">
-                <div class="leader-slot slot" id="slot-0" onclick="removeHero(0)"></div>
-                <div class="member-grid">
-                    <script>
-                        for(let i=1; i<=12; i++) {
-                            document.write(`<div class="slot" id="slot-${i}" onclick="removeHero(${i})"></div>`);
-                        }
-                    </script>
+            <h2 style="text-align:center; color: var(--accent-color); margin: 0 0 10px 0;">隊伍模擬器</h2>
+            
+            <div class="center-core">
+                <div class="team-container">
+                    <div class="leader-slot slot" id="slot-0" onclick="removeHero(0)"></div>
+                    <div class="member-grid" id="memberGrid"></div>
+                </div>
+
+                <div class="analysis-panel">
+                    <h4 style="margin: 0 0 15px 0; color: var(--accent-color); border-bottom: 1px solid #444; padding-bottom: 5px;">隊伍戰術分析</h4>
+                    <div id="statPanel">
+                        </div>
                 </div>
             </div>
         </div>
@@ -155,70 +161,126 @@
         </div>
     </div>
 
+    <div class="info-panel">
+        <h3 style="color: var(--accent-color); margin: 0 0 15px 0; font-size: 16px;">英雄詳細說明</h3>
+        <div id="teamInfoList">
+            <div style="text-align: center; color: #444; margin-top: 30px;">尚未選擇英雄</div>
+        </div>
+    </div>
+
     <script>
-        // 英雄資料庫：這裡請自行擴充到 100 隻
-        // img: 請放入圖片檔名（例如 'hero01.png'），如果還沒準備好就先留空
+        const typeNames = {
+            star: "勝利之星", curse: "詛咒", addcard: "換牌",
+            addpower: "能量", point: "點數", magic: "法傷",
+            magicbuff: "法傷增幅", lifesteal: "吸血",
+            cover: "遮蓋鋪克牌", blind: "手牌盲目"
+        };
+
+        // 範例資料，你可以繼續增加
         const heroes = [
-            { id: 1, name: "英雄A", type: "star", color: "#e74c3c", img: "" },
-            { id: 2, name: "英雄B", type: "curse", color: "#3498db", img: "" },
-            { id: 3, name: "英雄C", type: "addcard", color: "#9b59b6", img: "" },
-            { id: 4, name: "英雄D", type: "addpower", color: "#2ecc71", img: "" },
-            { id: 5, name: "英雄E", type: "star", color: "#f1c40f", img: "" },
-            { id: 6, name: "烏爾德", type: "poing", color: "#e67e22", img: "烏爾德.png" }
+            { id: 1, name: "布倫希爾德", type: ["star","magic"], img: "布倫希爾德.png", rarity: "gold", desc: "依據勝利之星提升ATK。依ATK再給予魔法傷害。"},
+            { id: 2, name: "凱伊", type: ["star"], img: "凱伊.png", rarity: "gold", desc: "受重擊效果影響，依據勝利之星提升ATK倍數。"},
+            { id: 200, name: "伊瑟", type: ["addcard","magicbuff"], img: "伊瑟.png", rarity: "gold", desc: "三個陣地魔法傷害增強，增加2張換牌機會。"},
+            { id: 300, name: "赫拉薇絲", type: ["magic", "lifesteal"], img: "赫拉薇絲.png", rarity: "gold", desc:"魅惑敵方並吸取傷害。"},
+            { id: 301, name: "邱比特", type: ["addcard", "cover", "blind"], img: "邱比特.png", rarity: "gold",
+                desc:"[光環]我方手牌ATK提升1.1倍<br>單回合：遮蓋敵方6張撲克牌<br>依勝利之星x1增加換牌<br>雙回合：敵方下回合2張手牌盲目<br>依勝利之星x5降低敵方祕法"},
+            { id: 400, name: "烏爾德", type: ["point"], img: "烏爾德.png", rarity: "gold", desc:"依點數給予法傷。三陣地點數增加，增加換牌。"}
         ];
 
         let selectedTeam = Array(13).fill(null);
 
-        // 核心：根據勾選狀態過濾並顯示英雄
+        const memberGrid = document.getElementById('memberGrid');
+        for(let i=1; i<=12; i++) {
+            memberGrid.innerHTML += `<div class="slot" id="slot-${i}" onclick="removeHero(${i})"></div>`;
+        }
+
         function renderHeroes() {
             const list = document.getElementById('heroList');
-            // 獲取目前所有被勾選的類別
             const activeFilters = Array.from(document.querySelectorAll('.type-filter:checked')).map(cb => cb.value);
-            
-            // 過濾資料
-            const filteredHeroes = heroes.filter(hero => activeFilters.includes(hero.type));
+            const filteredHeroes = heroes.filter(h => h.type.some(t => activeFilters.includes(t)));
 
-            list.innerHTML = filteredHeroes.map(hero => `
-                <div class="hero-item" 
-                     style="background-color: ${hero.color}; background-image: url('${hero.img}');" 
-                     onclick="addHero(${JSON.stringify(hero).replace(/"/g, '&quot;')})">
-                    ${hero.img ? "" : hero.name}
-                </div>
-            `).join('');
+            list.innerHTML = filteredHeroes.map(hero => {
+                const isSelected = selectedTeam.some(s => s && s.id === hero.id);
+                return `
+                    <div class="hero-item rarity-${hero.rarity} ${isSelected ? 'disabled' : ''}" 
+                         style="background-image: url('${hero.img}'); background-color: #333;" 
+                         onclick="${isSelected ? '' : `addHero(${JSON.stringify(hero).replace(/"/g, '&quot;')})`}">
+                        ${hero.img ? "" : hero.name}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 3. 全選/取消功能
+        function toggleAllFilters(isSelectAll) {
+            document.querySelectorAll('.type-filter').forEach(f => f.checked = isSelectAll);
+            renderHeroes();
         }
 
         function addHero(heroObj) {
-            const emptySlotIndex = selectedTeam.findIndex(s => s === null);
-            if (emptySlotIndex !== -1) {
-                selectedTeam[emptySlotIndex] = heroObj;
-                updateGrid();
-            }
+            const idx = selectedTeam.findIndex(s => s === null);
+            if (idx !== -1) { selectedTeam[idx] = heroObj; updateUI(); }
         }
 
-        function removeHero(index) {
-            selectedTeam[index] = null;
-            updateGrid();
+        function removeHero(idx) {
+            selectedTeam[idx] = null;
+            updateUI();
         }
 
-        function updateGrid() {
+        function updateUI() {
+            // 更新格子
             selectedTeam.forEach((hero, i) => {
                 const slot = document.getElementById(`slot-${i}`);
+                slot.className = 'slot' + (i === 0 ? ' leader-slot' : '');
                 if (hero) {
                     slot.style.backgroundImage = `url('${hero.img}')`;
-                    slot.style.backgroundColor = hero.color;
+                    slot.classList.add(`rarity-${hero.rarity}`);
                     slot.innerText = hero.img ? "" : hero.name;
-                    slot.classList.add('filled');
                 } else {
                     slot.style.backgroundImage = "";
-                    slot.style.backgroundColor = "";
                     slot.innerText = "";
-                    slot.classList.remove('filled');
                 }
             });
+
+            const activeHeroes = selectedTeam.filter(h => h !== null);
+
+            // 更新中間統計 (原本的紅框位置)
+            const stats = {};
+            activeHeroes.forEach(h => h.type.forEach(t => stats[t] = (stats[t] || 0) + 1));
+            const activeTags = Object.keys(stats).sort((a,b)=>stats[b]-stats[a]);
+
+            document.getElementById('statPanel').innerHTML = activeTags.length ? activeTags.map(k => {
+                const count = stats[k];
+                const percent = (count / 13) * 100;
+                return `
+                    <div class="stat-row">
+                        <div class="stat-label">${typeNames[k] || k}</div>
+                        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${percent}%"></div></div>
+                        <div class="stat-count">${count}</div>
+                    </div>
+                `;
+            }).join('') : '<div style="color:#555; font-size:12px;">無戰術數據</div>';
+
+            // 更新右側說明
+            const infoList = document.getElementById('teamInfoList');
+            if (activeHeroes.length === 0) {
+                infoList.innerHTML = '<div style="text-align: center; color: #444; margin-top: 30px;">尚未選擇英雄</div>';
+            } else {
+                infoList.innerHTML = activeHeroes.map(hero => `
+                    <div class="info-card" style="border-left: 3px solid var(--rarity-${hero.rarity});">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="info-hero-img" style="background-image: url('${hero.img}')"></div>
+                            <div style="font-weight: bold; font-size: 18px; color: var(--accent-color);">${hero.name}</div>
+                        </div>
+                        <div style="font-size: 14px; color: #ccc; line-height: 1.4; margin-top: 5px;">${hero.desc || ""}</div>
+                    </div>
+                `).join('');
+            }
+            renderHeroes();
         }
 
-        // 初始化
         renderHeroes();
+        updateUI();
     </script>
 </body>
 </html>

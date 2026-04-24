@@ -3,45 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【遊戲攻略網】AI 生成範本</title>
+    <title>逆轉魔卡組隊編輯器</title>
     <style>
-        /* 這是一些簡單的樣式，讓網頁變好看 */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
-        header { text-align: center; border-bottom: 2px solid #ffcc00; padding-bottom: 10px; margin-bottom: 20px; }
-        h1 { color: #ffcc00; margin: 0; }
-        .ad-container { border: 2px dashed #666; background-color: #2a2a2a; color: #999; text-align: center; padding: 20px; margin: 20px auto; max-width: 728px; }
-        .guide-section { background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .guide-section h2 { color: #88ccff; border-left: 4px solid #88ccff; padding-left: 10px; }
-        .guide-section p { line-height: 1.6; }
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --accent-color: #ffcc00;
+            --grid-border: #444;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: white;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左側過濾器 */
+        .sidebar {
+            width: 220px;
+            background-color: #111;
+            padding: 20px;
+            border-right: 1px solid var(--grid-border);
+            flex-shrink: 0;
+        }
+
+        .filter-group h3 { color: var(--accent-color); font-size: 16px; margin-bottom: 15px; }
+        .filter-item { margin: 12px 0; cursor: pointer; display: flex; align-items: center; font-size: 14px; }
+        .filter-item input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; }
+
+        /* 中間主要區域 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .team-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            padding: 20px;
+        }
+
+        /* 隊長位與成員位共用樣式 */
+        .slot {
+            width: 75px;
+            height: 75px;
+            border: 2px solid var(--grid-border);
+            border-radius: 8px;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden; /* 確保圖片不超出格子 */
+            transition: all 0.2s;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .leader-slot {
+            width: 90px;
+            height: 90px;
+            border: 3px solid var(--accent-color);
+            position: relative;
+        }
+        .leader-slot::after { content: "隊長"; position: absolute; bottom: -22px; font-size: 12px; color: var(--accent-color); font-weight: bold; }
+
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 75px);
+            gap: 15px;
+        }
+
+        /* 下方英雄列表 */
+        .hero-picker {
+            background: #0a0a0a;
+            padding: 15px;
+            min-height: 160px;
+            border-top: 2px solid var(--grid-border);
+        }
+
+        .hero-list {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 10px 5px;
+        }
+
+        .hero-item {
+            min-width: 65px;
+            height: 65px;
+            background: #333;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            transition: transform 0.1s, border 0.2s;
+            border: 2px solid transparent;
+            background-size: cover;
+            background-position: center;
+        }
+        .hero-item:hover { transform: translateY(-5px); border-color: var(--accent-color); }
+
+        .filled { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>遊戲攻略網</h1>
-    <p>最強 AI 攻略生  器出品</p>
-</header>
+    <div class="sidebar">
+        <h3>技能/類別過濾</h3>
+        <div class="filter-item"><input type="checkbox" class="type-filter" value="star" id="f-star" checked onchange="renderHeroes()"> 勝利之星</div>
+        <div class="filter-item"><input type="checkbox" class="type-filter" value="curse" id="f-curse" checked onchange="renderHeroes()"> 詛咒</div>
+        <div class="filter-item"><input type="checkbox" class="type-filter" value="addcard" id="f-addcard" checked onchange="renderHeroes()"> 換牌</div>
+        <div class="filter-item"><input type="checkbox" class="type-filter" value="addpower" id="f-addpower" checked onchange="renderHeroes()"> 增加祕法能量</div>
+        
+        <div class="ad-container" style="margin-top:50px; color:#555; font-size:12px; border:1px dashed #333; padding:10px; text-align:center;">
+            廣告佔位
+        </div>
+    </div>
 
-<div class="ad-container">
-    <p><strong>廣告佔位區</strong></p>
-    <p><small>(等你拿到 AdSense 代碼後，把代碼貼到這裡。)</small></p>
-</div>
+    <div style="flex:1; display:flex; flex-direction:column;">
+        <div class="main-content">
+            <h2 style="text-align:center; color: var(--accent-color);">隊伍組建模擬器</h2>
+            <div class="team-container">
+                <div class="leader-slot slot" id="slot-0" onclick="removeHero(0)"></div>
+                <div class="member-grid">
+                    <script>
+                        for(let i=1; i<=12; i++) {
+                            document.write(`<div class="slot" id="slot-${i}" onclick="removeHero(${i})"></div>`);
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
 
-<div class="guide-section">
-    <h2>[新手指南] 快速上手教學</h2>
-    <p>這是 AI 生成的簡單文字範本。你可以在這裡輸入遊戲的基本玩法、操作說明、以及剛開始遊戲時需要注意的事項。攻略網站的內容非常依赖圖片，記得在公司電腦回來後把圖片補上。</p>
-    <p>例如：按住 W 鍵可以加速跑跑跑。點擊滑鼠左鍵可以進行攻擊。</p>
-</div>
+        <div class="hero-picker">
+            <div class="hero-list" id="heroList"></div>
+        </div>
+    </div>
 
-<div class="guide-section">
-    <h2>[進階技巧] 祕辛公開</h2>
-    <p>這個區域可以放一些隱藏關卡位置、魔王（Boss）打法心法，或者是角色配點建議。攻略網站最重要的就是資訊準確度與圖片清晰度。</p>
-    <p>例如：魔王只會攻擊右邊，請保持在左邊攻擊。隱藏關卡在第三關的瀑布後面。</p>
-</div>
+    <script>
+        // 英雄資料庫：這裡請自行擴充到 100 隻
+        // img: 請放入圖片檔名（例如 'hero01.png'），如果還沒準備好就先留空
+        const heroes = [
+            { id: 1, name: "英雄A", type: "star", color: "#e74c3c", img: "" },
+            { id: 2, name: "英雄B", type: "curse", color: "#3498db", img: "" },
+            { id: 3, name: "英雄C", type: "addcard", color: "#9b59b6", img: "" },
+            { id: 4, name: "英雄D", type: "addpower", color: "#2ecc71", img: "" },
+            { id: 5, name: "英雄E", type: "star", color: "#f1c40f", img: "" },
+            { id: 6, name: "英雄F", type: "curse", color: "#e67e22", img: "" }
+        ];
 
-<div class="ad-container">
-    <p><strong>底部廣告佔位區</strong></p>
-</div>
+        let selectedTeam = Array(13).fill(null);
 
+        // 核心：根據勾選狀態過濾並顯示英雄
+        function renderHeroes() {
+            const list = document.getElementById('heroList');
+            // 獲取目前所有被勾選的類別
+            const activeFilters = Array.from(document.querySelectorAll('.type-filter:checked')).map(cb => cb.value);
+            
+            // 過濾資料
+            const filteredHeroes = heroes.filter(hero => activeFilters.includes(hero.type));
+
+            list.innerHTML = filteredHeroes.map(hero => `
+                <div class="hero-item" 
+                     style="background-color: ${hero.color}; background-image: url('${hero.img}');" 
+                     onclick="addHero(${JSON.stringify(hero).replace(/"/g, '&quot;')})">
+                    ${hero.img ? "" : hero.name}
+                </div>
+            `).join('');
+        }
+
+        function addHero(heroObj) {
+            const emptySlotIndex = selectedTeam.findIndex(s => s === null);
+            if (emptySlotIndex !== -1) {
+                selectedTeam[emptySlotIndex] = heroObj;
+                updateGrid();
+            }
+        }
+
+        function removeHero(index) {
+            selectedTeam[index] = null;
+            updateGrid();
+        }
+
+        function updateGrid() {
+            selectedTeam.forEach((hero, i) => {
+                const slot = document.getElementById(`slot-${i}`);
+                if (hero) {
+                    slot.style.backgroundImage = `url('${hero.img}')`;
+                    slot.style.backgroundColor = hero.color;
+                    slot.innerText = hero.img ? "" : hero.name;
+                    slot.classList.add('filled');
+                } else {
+                    slot.style.backgroundImage = "";
+                    slot.style.backgroundColor = "";
+                    slot.innerText = "";
+                    slot.classList.remove('filled');
+                }
+            });
+        }
+
+        // 初始化
+        renderHeroes();
+    </script>
 </body>
 </html>

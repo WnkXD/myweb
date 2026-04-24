@@ -123,11 +123,12 @@
 <body>
 
     <div class="sidebar">
-        <h3>技能/類別過濾</h3>
+        <h3>技能類別</h3>
         <div class="filter-item"><input type="checkbox" class="type-filter" value="star" id="f-star" checked onchange="renderHeroes()"> 勝利之星</div>
         <div class="filter-item"><input type="checkbox" class="type-filter" value="curse" id="f-curse" checked onchange="renderHeroes()"> 詛咒</div>
         <div class="filter-item"><input type="checkbox" class="type-filter" value="addcard" id="f-addcard" checked onchange="renderHeroes()"> 換牌</div>
         <div class="filter-item"><input type="checkbox" class="type-filter" value="addpower" id="f-addpower" checked onchange="renderHeroes()"> 增加祕法能量</div>
+        <div class="filter-item"><input type="checkbox" class="type-filter" value="point" id="f-point" checked onchange="renderHeroes()"> 點數</div>
         
         <div class="ad-container" style="margin-top:50px; color:#555; font-size:12px; border:1px dashed #333; padding:10px; text-align:center;">
             廣告佔位
@@ -136,7 +137,7 @@
 
     <div style="flex:1; display:flex; flex-direction:column;">
         <div class="main-content">
-            <h2 style="text-align:center; color: var(--accent-color);">隊伍組建模擬器</h2>
+            <h2 style="text-align:center; color: var(--accent-color);">隊伍模擬器</h2>
             <div class="team-container">
                 <div class="leader-slot slot" id="slot-0" onclick="removeHero(0)"></div>
                 <div class="member-grid">
@@ -163,7 +164,7 @@
             { id: 3, name: "英雄C", type: "addcard", color: "#9b59b6", img: "" },
             { id: 4, name: "英雄D", type: "addpower", color: "#2ecc71", img: "" },
             { id: 5, name: "英雄E", type: "star", color: "#f1c40f", img: "" },
-            { id: 6, name: "英雄F", type: "curse", color: "#e67e22", img: "" }
+            { id: 6, name: "烏爾德", type: "poing", color: "#e67e22", img: "烏爾德.png" }
         ];
 
         let selectedTeam = Array(13).fill(null);

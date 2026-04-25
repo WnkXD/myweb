@@ -25,6 +25,14 @@
             vertical-align: -1px; /* 往下微調 1 像素讓視覺中心對齊 */
         }
 
+        .halo-glow {
+            color: #fff200; /* 更亮的黃色 */
+            font-size: 1.2em; /* 比周圍文字大 1.2 倍 */
+            text-shadow: 0 0 8px rgba(255, 204, 0, 0.8), 0 0 2px rgba(255, 255, 255, 1);
+            font-weight: bold;
+            vertical-align: -1px; /* 往下微調 1 像素讓視覺中心對齊 */
+        }
+
         /* 劍的特效 (Emoji) */
         .sword-glow {
             /* Emoji 自帶顏色，所以通常不用設定 color */
@@ -245,7 +253,7 @@
     <h3 class="filter-title">輔助技能</h3>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="magicbuff" checked onchange="renderHeroes()"> 法傷增幅</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="addcard"   checked onchange="renderHeroes()"> 增加換牌</div>
-    <div class="filter-item"><input type="checkbox" class="type-filter" value="addpower"  checked onchange="renderHeroes()"> 增加能量</div>
+    <div class="filter-item"><input type="checkbox" class="type-filter" value="addpower"  checked onchange="renderHeroes()"> 增加祕法能量</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="point"     checked onchange="renderHeroes()"> 增加點數</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="heal"      checked onchange="renderHeroes()"> 恢復生命</div>
 
@@ -255,6 +263,7 @@
     <div class="filter-item"><input type="checkbox" class="type-filter" value="curse"     checked onchange="renderHeroes()"> 詛咒</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="charm"     checked onchange="renderHeroes()"> 魅惑</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="weapondmg" checked onchange="renderHeroes()"> 武器傷害</div>
+    <div class="filter-item"><input type="checkbox" class="type-filter" value="delpower"  checked onchange="renderHeroes()"> 降低祕法能量</div>
 </div>
 
 <div style="flex:1; display:flex; flex-direction:column;">
@@ -298,30 +307,30 @@
         addpower:"能量", point:"點數", magic:"法傷",
         magicbuff:"法傷增幅", lifesteal:"吸血",
         cover:"遮蓋撲克牌", blind:"手牌盲目", heal:"恢復生命",
-        cursedmg:"咒印傷害",weapondmg:"武器傷害",charm:"魅惑"
+        cursedmg:"咒印傷害",weapondmg:"武器傷害",charm:"魅惑",delpower:"降低祕法"
     };
 
     const heroes = [
         { id:1, name:"布倫希爾德", img:"布倫希爾德.png", rarity:"gold",   canEvo:false,
-          base:{ type:["star","weapondmg"],            desc:"依★數量提升🗡️<br>再依🗡️給予魔法傷害<br>被攻擊的英雄，每回合給予破損效果" },
+          base:{ type:["star","weapondmg"], desc:"依★數量提升🗡️<br>再依🗡️給予魔法傷害<br>被攻擊的英雄，每回合給予破損效果" },
           evo: { type:[""], desc:"" } },
         { id:2, name:"凱伊",       img:"凱伊.png",       rarity:"gold",   canEvo:false,
-          base:{ type:["star","weapondmg"],            desc:"依★數量提升🗡️<br>被攻擊的英雄，受到重擊效果" },
+          base:{ type:["star","weapondmg"], desc:"依★數量提升🗡️<br>被攻擊的英雄，受到重擊效果" },
           evo: { type:[""], desc:"" } },
         { id:3, name:"伊瑟",       img:"伊瑟.png",       rarity:"gold",   canEvo:false,
-          base:{ type:["addcard","magicbuff"],            desc:"下回合，我方三個陣地魔法傷害增強<br>增加換牌機會" },
+          base:{ type:["addcard","magicbuff"], desc:"下回合，我方三個陣地魔法傷害增強<br>增加換牌機會" },
           evo: { type:[""], desc:"" } },
         { id:4, name:"赫拉薇絲",   img:"赫拉薇絲.png",   rarity:"gold",   canEvo:false,
-          base:{ type:["charm","lifesteal","magic"],            desc:"魅惑🗡️最高的敵方英雄<br>封鎖敵方換牌1回合，給予魔法傷害 or<br>封鎖敵方祕法1回合，依回合數吸取傷害" },
+          base:{ type:["charm","lifesteal","magic"], desc:"魅惑🗡️最高的敵方英雄<br>封鎖敵方換牌1回合，給予魔法傷害 or<br>封鎖敵方祕法1回合，依回合數吸取傷害" },
           evo: { type:[""], desc:"" } },
         { id:5, name:"邱比特",     img:"邱比特.png",     rarity:"gold",   canEvo:false,
-          base:{ type:["curse"],            desc:"" },
+          base:{ type:["addcard","cover","blind","delpower","star"], desc:"[🔆]我方手牌提升🗡️%數<br>遮蓋敵方撲克牌，依★數量增加換牌機會 or<br>敵方手牌盲目，依★數量降低祕法能量" },
           evo: { type:[""], desc:"" } },
         { id:6, name:"闇影喵師",   img:"闇影喵師.png",   rarity:"purple", canEvo:true,
           base:{ type:["curse","heal"],            desc:"敵方陷入詛咒狀態。<br>每回合恢復HP，持續3回合" },
-          evo: { type:["curse","cursedmg","lifesteal"], desc:"依敵方手牌詛咒數量給予咒印傷害<br>依牌型點數吸取傷害<br>被攻擊的英雄，每回合手牌陷入詛咒狀態" } },
+          evo: { type:["curse","cursedmg","lifesteal"], desc:"依敵方手牌詛咒數量給予咒印傷害<br>依點數吸取傷害<br>被攻擊的英雄，每回合手牌陷入詛咒狀態" } },
         { id:7, name:"烏爾德",     img:"烏爾德.png",     rarity:"gold",   canEvo:false,
-          base:{ type:["curse"],            desc:"魅惑敵方並吸取傷害。" },
+          base:{ type:["point","magic","addcard"], desc:"依點數給予魔法傷害<br>我方三個陣地點數增加，持續兩回合<br>增加換牌機會" },
           evo: { type:[""], desc:"" } },
     ];
 
@@ -374,7 +383,7 @@
     const config = {
         "★": "star-glow",
         "🗡️": "sword-glow",
-        "🔮": "magic-purple"
+        "🔆": "halo-glow"
     };
 
     let result = desc;

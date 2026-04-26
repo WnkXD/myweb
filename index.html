@@ -309,6 +309,8 @@
     <div class="filter-item"><input type="checkbox" class="type-filter" value="addpower"  checked onchange="renderHeroes()"> 增加祕法能量</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="point"     checked onchange="renderHeroes()"> 增加點數</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="heal"      checked onchange="renderHeroes()"> 恢復生命</div>
+    <div class="filter-item"><input type="checkbox" class="type-filter" value="cardsteal" checked onchange="renderHeroes()"> 偷取換牌</div>
+    <div class="filter-item"><input type="checkbox" class="type-filter" value="copyskill" checked onchange="renderHeroes()"> 複製技能</div>
 
     <h3 class="filter-title">狀態異常</h3>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="blind"     checked onchange="renderHeroes()"> 手牌盲目</div>
@@ -317,6 +319,7 @@
     <div class="filter-item"><input type="checkbox" class="type-filter" value="charm"     checked onchange="renderHeroes()"> 魅惑</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="weapondmg" checked onchange="renderHeroes()"> 武器傷害</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="delpower"  checked onchange="renderHeroes()"> 降低祕法能量</div>
+    <div class="filter-item"><input type="checkbox" class="type-filter" value="blockcard" checked onchange="renderHeroes()"> 封鎖英雄</div>
 </div>
 
 <div style="flex:1; display:flex; flex-direction:column;">
@@ -367,11 +370,20 @@
 
 <script>
     const typeNames = {
-        star:"勝利之星", curse:"詛咒", addcard:"換牌",
-        addpower:"能量", point:"點數", magic:"法傷",
-        magicbuff:"法傷增幅", lifesteal:"吸血",
-        cover:"遮蓋撲克牌", blind:"手牌盲目", heal:"恢復生命",
-        cursedmg:"咒印傷害", weapondmg:"武器傷害", charm:"魅惑", delpower:"降低祕法"
+        star:"勝利之星", cursedmg:"咒印傷害", magic:"法傷",lifesteal:"吸血",
+        addpower:"增加能量", point:"增加點數", magicbuff:"法傷增幅",
+        heal:"恢復生命", addcard:"換牌", copyskill:"複製技能",
+        curse:"詛咒", 
+        weapondmg:"武器傷害", delpower:"降低祕法", cardsteal:"偷取換牌", 
+        cover:"狀態異常", blind:"狀態異常", charm:"狀態異常", blockcard:"狀態異常",
+        abnormal:"狀態異常"
+    };
+
+    const mergeType = {
+    cover: "abnormal",
+    blind: "abnormal",
+    charm: "abnormal",
+    blockcard: "abnormal"
     };
 
     const rarityLabel = { 
@@ -406,6 +418,15 @@
         { id:8, name:"驅魔師", img:"驅魔師.png", rarity:"blue", canEvo:true,
           base:{ type:["addcard","magic"], desc:"依敵方當前HP給予魔法傷害<br>增加換牌機會" },
           evo: { type:["star","magic","addcard"], desc:"依★數量給予魔法傷害<br>增加換牌機會" } },
+        { id:9, name:"神使", img:"神使.png", rarity:"white", canEvo:true,
+          base:{ type:["addcard"], desc:"增加換牌機會" },
+          evo: { type:["cardsteal"], desc:"偷取敵方換牌" } },
+        { id:10, name:"勾魂判官", img:"勾魂判官.png", rarity:"purple", canEvo:true,
+          base:{ type:["magic","blockcard"], desc:"依點數給予魔法傷害<br>封鎖敵方🗡️最低的英雄2回合" },
+          evo: { type:["star","magic"], desc:"依★數量給予敵人詛咒<br>以隊伍總🗡️%數給予魔法傷害" } },
+        { id:11, name:"梅林", img:"梅林.png", rarity:"gold", canEvo:false,
+          base:{ type:["copyskill"], desc:"隨機複製我方上陣英雄技能" },
+          evo: { type:[""], desc:"" } },
     ];
 
     let selectedTeam = Array(13).fill(null);
@@ -614,7 +635,11 @@
         const stats = {};
         const active = selectedTeam.filter(Boolean);
         active.forEach(h => {
-            h[h.currentMode].type.forEach(t => { if(t) stats[t] = (stats[t] || 0) + 1; });
+            h[h.currentMode].type.forEach(t => {
+                if (!t) return;
+                const key = mergeType[t] || t;
+                stats[key] = (stats[key] || 0) + 1;
+            });
         });
         const keys = Object.keys(stats).sort((a,b) => stats[b]-stats[a]);
         document.getElementById('statPanel').innerHTML = keys.length

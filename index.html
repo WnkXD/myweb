@@ -43,7 +43,7 @@
             margin: 0;
             display: flex;
             height: 100vh;
-            overflow: hidden;
+            overflow: auto;
         }
 
         .sidebar {
@@ -165,7 +165,9 @@
         .member-grid { display: grid; grid-template-columns: repeat(4, 70px); gap: 10px; }
 
         .info-panel {
-            width: 930px;
+            min-width: 0;
+            flex: 1;
+            max-width: 930px;
             background: #2a2a2a;
             padding: 25px;
             border-left: 1px solid #222;

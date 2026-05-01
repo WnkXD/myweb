@@ -27,6 +27,12 @@
             height: 100vh;
             overflow: auto;
         }
+        /*文字上色*/
+        h {
+            color: #2dc53a;
+            font-weight: bold;
+            display: inline; /* 確保它不會換行 */
+        }
 
         .sidebar {
             width: 160px;
@@ -169,11 +175,10 @@
         }
         .info-hero-img { width: 60px; height: 60px; border-radius: 30px; background-size: cover; background-position: center; margin-bottom: 8px; background-color: #222; }
 
-        /* ── 英雄選擇區 ── */
         .hero-picker {
             background: #080808; padding: 15px; border-top: 1px solid var(--grid-border);
             height: 300px; overflow-y: auto;
-            position: relative; /* tooltip 定位基準 */
+            position: relative;
         }
         .hero-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)); gap: 12px; }
         .hero-item {
@@ -206,71 +211,136 @@
 
         /* ══ 懸停預覽框 ══ */
         #heroTooltip {
-            position: fixed;           /* fixed 讓它不受 overflow:hidden 裁切 */
+            position: fixed;
             z-index: 9999;
             width: 260px;
             background: #1c1c1c;
             border-radius: 10px;
             padding: 14px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-            pointer-events: none;      /* 不攔截滑鼠事件 */
+            pointer-events: none;
             opacity: 0;
             transform: translateY(6px);
             transition: opacity 0.15s ease, transform 0.15s ease;
         }
-        #heroTooltip.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .tooltip-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+        #heroTooltip.visible { opacity: 1; transform: translateY(0); }
+        .tooltip-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .tooltip-img {
-            width: 48px; height: 48px;
-            border-radius: 24px;
-            background-size: cover;
-            background-position: center;
-            background-color: #333;
-            flex-shrink: 0;
+            width: 48px; height: 48px; border-radius: 24px;
+            background-size: cover; background-position: center;
+            background-color: #333; flex-shrink: 0;
         }
-        .tooltip-name {
-            font-size: 15px;
-            font-weight: bold;
-            color: var(--accent-color);
-        }
-        /* 預覽框稀有度字型大小 */
-        .tooltip-mode {
-            font-size: 13px;
-            color: #aaa;
-            margin-top: 2px;
-        }
-        .tooltip-divider {
-            border: none;
-            border-top: 1px solid #333;
-            margin: 8px 0;
-        }
-        /* 基礎 / 進化 區塊 */
+        .tooltip-name { font-size: 15px; font-weight: bold; color: var(--accent-color); }
+        .tooltip-mode { font-size: 13px; color: #aaa; margin-top: 2px; }
+        .tooltip-divider { border: none; border-top: 1px solid #333; margin: 8px 0; }
         .tooltip-section { margin-bottom: 8px; }
         .tooltip-section-title {
-            font-size: 11px;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 3px;
-            display: inline-block;
-            margin-bottom: 4px;
+            font-size: 11px; font-weight: bold; padding: 2px 6px;
+            border-radius: 3px; display: inline-block; margin-bottom: 4px;
         }
         .tooltip-section-title.base { background: #333; color: #ccc; }
         .tooltip-section-title.evo  { background: #c81414; color: #ffffff; }
+        .tooltip-desc { font-size: 13px; color: #e6e4e4; line-height: 1.6; }
 
-        /* 預覽列字型大小 */
-        .tooltip-desc {
-            font-size: 13px;
-            color: #e6e4e4;
-            line-height: 1.6;
+        /* ══ 儲存/載入 Modal ══ */
+        #saveModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
         }
+        #saveModal.open { display: flex; }
+        .modal-box {
+            background: #1e1e1e;
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 24px;
+            width: 360px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-title {
+            color: var(--accent-color);
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0 0 16px 0;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+        .modal-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .modal-input-row input {
+            flex: 1;
+            background: #111;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: white;
+            padding: 6px 10px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .modal-input-row input:focus { outline: none; border-color: var(--accent-color); }
+
+        /* 通用按鈕樣式 */
+        .btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: bold;
+            transition: opacity 0.15s;
+        }
+        .btn:hover { opacity: 0.85; }
+        .btn-gold   { background: var(--accent-color); color: #111; }
+        .btn-red    { background: #c81414; color: white; }
+        .btn-gray   { background: #333; color: #ccc; }
+
+        .save-slot-list { display: flex; flex-direction: column; gap: 8px; }
+        .save-slot-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #111;
+            border-radius: 8px;
+            padding: 8px 10px;
+            border: 1px solid #333;
+        }
+        .save-slot-name { flex: 1; font-size: 13px; color: #ddd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .save-slot-time { font-size: 11px; color: #666; flex-shrink: 0; }
+
+        /* 工具列按鈕群 */
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+
+        /* toast 提示 */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #333;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            pointer-events: none;
+            z-index: 20000;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         .rarity-gold   { border-color: var(--rarity-gold)   !important; }
         .rarity-purple { border-color: var(--rarity-purple) !important; }
@@ -292,12 +362,13 @@
     <div class="filter-item"><input type="checkbox" class="type-filter" value="cursedmg"  checked onchange="renderHeroes()"> 咒印傷害</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="magic"     checked onchange="renderHeroes()"> 魔法傷害</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="lifesteal" checked onchange="renderHeroes()"> 吸血傷害</div>
+    <div class="filter-item"><input type="checkbox" class="type-filter" value="pointdmg"  checked onchange="renderHeroes()"> 牌型點數傷害</div>
 
     <h3 class="filter-title">輔助技能</h3>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="magicbuff" checked onchange="renderHeroes()"> 法傷增幅</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="addcard"   checked onchange="renderHeroes()"> 增加換牌</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="addpower"  checked onchange="renderHeroes()"> 增加祕法能量</div>
-    <div class="filter-item"><input type="checkbox" class="type-filter" value="point"     checked onchange="renderHeroes()"> 增加點數</div>
+    <div class="filter-item"><input type="checkbox" class="type-filter" value="point"     checked onchange="renderHeroes()"> 增加牌型點數</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="heal"      checked onchange="renderHeroes()"> 恢復生命</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="cardsteal" checked onchange="renderHeroes()"> 偷取換牌</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="copyskill" checked onchange="renderHeroes()"> 複製技能</div>
@@ -315,6 +386,13 @@
 <div style="flex:1; display:flex; flex-direction:column;">
     <div class="main-content">
         <h2 style="text-align:center; color:var(--accent-color); margin:0 0 10px 0;">左鍵鬪化　右鍵退隊</h2>
+
+        <!-- 工具列 -->
+        <div class="toolbar">
+            <button class="btn btn-gold"  onclick="openSaveModal()">💾 儲存 / 載入</button>
+            <button class="btn btn-red"   onclick="clearTeam()">✕ 清空隊伍</button>
+        </div>
+
         <div class="center-core">
             <div class="team-container">
                 <div class="slot leader-slot" id="slot-0">
@@ -345,7 +423,7 @@
     </div>
 </div>
 
-<!-- 懸停預覽框（全域，fixed 定位） -->
+<!-- 懸停預覽框 -->
 <div id="heroTooltip">
     <div class="tooltip-header">
         <div class="tooltip-img" id="ttImg"></div>
@@ -358,122 +436,247 @@
     <div id="ttBody"></div>
 </div>
 
+<!-- 儲存/載入 Modal -->
+<div id="saveModal">
+    <div class="modal-box">
+        <div class="modal-title">💾 儲存 / 載入隊伍</div>
+
+        <!-- 儲存區 -->
+        <div style="font-size:12px; color:#999; margin-bottom:6px;">輸入名稱後儲存目前隊伍：</div>
+        <div class="modal-input-row">
+            <input type="text" id="saveNameInput" placeholder="隊伍名稱（例如：詛咒速攻）" maxlength="20">
+            <button class="btn btn-gold" onclick="saveCurrentTeam()">儲存</button>
+        </div>
+
+        <!-- 已存清單 -->
+        <div style="font-size:12px; color:#999; margin-bottom:8px;">已儲存的隊伍：</div>
+        <div class="save-slot-list" id="saveSlotList"></div>
+
+        <div style="margin-top:16px; text-align:right;">
+            <button class="btn btn-gray" onclick="closeSaveModal()">關閉</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
 <script>
+    const STORAGE_KEY = 'team_saves_v1';
+
     const typeNames = {
-        star:"勝利之星", cursedmg:"咒印傷害", magic:"法傷",lifesteal:"吸血",
+        star:"勝利之星", cursedmg:"咒印傷害", magic:"法傷", lifesteal:"吸血", pointdmg:"點數傷害",
         addpower:"增加能量", point:"增加點數", magicbuff:"法傷增幅",
         heal:"恢復生命", addcard:"換牌", copyskill:"複製技能",
-        curse:"詛咒", 
-        weapondmg:"武器傷害", delpower:"降低祕法", cardsteal:"偷取換牌", 
+        curse:"詛咒",
+        weapondmg:"武器傷害", delpower:"降低祕法", cardsteal:"偷取換牌",
         cover:"狀態異常", blind:"狀態異常", charm:"狀態異常", blockcard:"狀態異常",
         abnormal:"狀態異常"
     };
 
     const mergeType = {
-    cover: "abnormal",
-    blind: "abnormal",
-    charm: "abnormal",
-    blockcard: "abnormal"
+        cover: "abnormal", blind: "abnormal",
+        charm: "abnormal", blockcard: "abnormal"
     };
 
-    const rarityLabel = { 
+    const rarityLabel = {
         gold:   { label:"傳說", color:"var(--rarity-gold)" },
         purple: { label:"史詩", color:"var(--rarity-purple)" },
-        blue:   { label:"稀有", color:"var(--rarity-blue)" }, 
-        white:  { label:"普通", color:"var(--rarity-white)"},
+        blue:   { label:"稀有", color:"var(--rarity-blue)" },
+        white:  { label:"普通", color:"var(--rarity-white)" },
     };
 
     const heroes = [
         { id:1, name:"布倫希爾德", img:"heroes/gold/布倫希爾德.png", rarity:"gold", canEvo:false,
-          base:{ type:["star","weapondmg"], desc:"依勝利之星數量提升ATK<br>再依ATK給予魔法傷害<br>被攻擊的英雄，每回合給予破損效果" },
-          evo: { type:[""], desc:"" } },
+          base:{ type:["star","weapondmg"], desc:"依據 勝利之星 x <h>1700</h> 提升ATK<br>依 ATK 再給予 魔法傷害<br>被攻擊的英雄，每回合給予破損效果" } },
         { id:2, name:"凱伊", img:"heroes/gold/凱伊.png", rarity:"gold", canEvo:false,
-          base:{ type:["star","weapondmg"], desc:"依勝利之星數量提升ATK<br>被攻擊的英雄，受到重擊效果" },
-          evo: { type:[""], desc:"" } },
-        { id:3, name:"伊瑟", img:"heroes/gold/伊瑟.png", rarity:"gold", canEvo:false,
-          base:{ type:["addcard","magicbuff"], desc:"下回合，我方三個陣地魔法傷害增強<br>增加換牌機會" },
-          evo: { type:[""], desc:"" } },
+          base:{ type:["star","weapondmg"], desc:"ATK 提升 <h>1</h> +(勝利之星 x <h>0.7</h> 倍)<br>被攻擊的英雄，受到重擊效果" } },
+        { id:3, name:"伊瑟", img:"heroes/gold/伊瑟.png", rarity:"gold", canEvo:true,
+          base:{ type:["addcard","magicbuff"], desc:"我方三個陣地 魔法傷害增強 <h>1.8</h> 倍<br>增加 <h>3</h> 張 換牌" },
+          evo: { type:["magicbuff","addcard"], desc:"我方一個陣地 魔法傷害增強 <h>3.2</h> 倍，持續兩回合<br>增加 <h>4</h> 張 換牌"} },
         { id:4, name:"赫拉薇絲", img:"heroes/gold/赫拉薇絲.png", rarity:"gold", canEvo:false,
-          base:{ type:["charm","lifesteal","magic"], desc:"魅惑ATK最高的敵方英雄<br>封鎖敵方換牌1回合，給予魔法傷害 or<br>封鎖敵方祕法1回合，依回合數吸取傷害" },
-          evo: { type:[""], desc:"" } },
+          base:{ type:["charm","lifesteal","magic"], 
+            desc:"敵方ATK最高的 <h>2</h> 位英雄進入魅惑狀態<br>\
+                單回合：<br>封鎖 換牌 <h>2</h> 回合，給予 <h>8000</h> 魔法傷害<br>\
+                雙回合：<br>封鎖祕法 <h>2</h> 回合，依回合數 x <h>1800</h> 吸取傷害" } 
+        },
         { id:5, name:"邱比特", img:"heroes/gold/邱比特.png", rarity:"gold", canEvo:false,
-          base:{ type:["addcard","cover","blind","delpower","star"], desc:"[🔆]我方手牌提升ATK%數<br>遮蓋敵方撲克牌，依勝利之星數量增加換牌機會 or<br>敵方手牌盲目，依勝利之星數量降低祕法能量" },
-          evo: { type:[""], desc:"" } },
+          base:{ type:["addcard","cover","blind","delpower","star"],
+            desc:"光環效果 我方手牌ATK提升 <h>1.2</h> 倍\
+                <br>單回合：<br>遮蓋 <h>10</h> 張撲克牌，依勝利之星 x <h>1</h> 張增加 換牌\
+                <br>雙回合：<br>下回合 <h>5</h> 張手牌盲目，依勝利之星 x <h>10</h> 降低祕法能量" } 
+        },
         { id:6, name:"闇影喵師", img:"heroes/purple/闇影喵師.png", rarity:"purple", canEvo:true,
-          base:{ type:["curse","heal"], desc:"敵方陷入詛咒狀態。<br>每回合恢復HP，持續3回合" },
-          evo: { type:["curse","cursedmg","lifesteal"], desc:"依敵方手牌詛咒數量給予咒印傷害<br>依點數吸取傷害<br>被攻擊的英雄，每回合手牌陷入詛咒狀態" } },
+          base:{ type:["curse","heal"], desc:"敵方手牌陷入 <h>10</h> 個 詛咒<br>每回合恢復 <h>4000</h> HP，持續3回合" },
+          evo: { type:["curse","cursedmg","lifesteal","pointdmg"],
+            desc:"給予敵方手牌詛咒數量 x <h>1800</h> 的咒印傷害<br>依牌型點數 x <h>100</h> 吸取傷害<br>被攻擊的英雄，每回合手牌陷入 <h>3</h> 個 詛咒" } 
+        },
         { id:7, name:"烏爾德", img:"heroes/gold/烏爾德.png", rarity:"gold", canEvo:false,
-          base:{ type:["point","magic","addcard"], desc:"依點數給予魔法傷害<br>我方三個陣地點數增加，持續兩回合<br>增加換牌機會" },
-          evo: { type:[""], desc:"" } },
+          base:{ type:["point","magic","addcard"],
+            desc:"依牌型點數 x <h>500</h> 給予 魔法傷害<br>我方三個陣地點數增加 <h>200</h> 點，持續兩回合<br>增加 <h>10</h> 張 換牌" } 
+        },
         { id:8, name:"驅魔師", img:"heroes/blue/驅魔師.png", rarity:"blue", canEvo:true,
-          base:{ type:["addcard","magic"], desc:"依敵方當前HP給予魔法傷害<br>增加換牌機會" },
-          evo: { type:["star","magic","addcard"], desc:"依勝利之星數量給予魔法傷害<br>增加換牌機會" } },
+          base:{ type:["addcard","magic"], desc:"依敵方當前HP的 <h>23%</h> 給予 魔法傷害<br>增加 <h>2</h> 張 換牌" },
+          evo: { type:["star","magic","addcard"], desc:"依 勝利之星 x <h>1800</h> 給予 魔法傷害<br>增加 <h>3</h> 張 換牌" } },
         { id:9, name:"神使", img:"heroes/white/神使.png", rarity:"white", canEvo:true,
-          base:{ type:["addcard"], desc:"增加換牌機會" },
-          evo: { type:["cardsteal"], desc:"偷取敵方換牌" } },
+          base:{ type:["addcard"], desc:"增加 <h>6</h> 張 換牌" },
+          evo: { type:["cardsteal"], desc:"偷取敵方最多 <h>6</h> 張 換牌" } },
         { id:10, name:"勾魂判官", img:"heroes/purple/勾魂判官.png", rarity:"purple", canEvo:true,
-          base:{ type:["magic","blockcard"], desc:"依點數給予魔法傷害<br>封鎖敵方ATK最低的英雄2回合" },
-          evo: { type:["star","magic","curse"], desc:"依勝利之星數量給予敵人詛咒<br>以隊伍總ATK%數給予魔法傷害" } },
+          base:{ type:["magic","blockcard","pointdmg"], desc:"依牌型點數 x <h>180</h> 給予 魔法傷害<br>封鎖敵方ATK最低的英雄 <h>3</h> 回合" },
+          evo: { type:["star","magic","curse"], desc:"敵方手牌陷入 勝利之星 x <h>1</h> 個 詛咒<br>以隊伍總ATK的 <h>25%</h> 給予 魔法傷害" } },
         { id:11, name:"梅林", img:"heroes/gold/梅林.png", rarity:"gold", canEvo:false,
-          base:{ type:["copyskill"], desc:"隨機複製我方上陣英雄技能" },
-          evo: { type:[""], desc:"" } },
+          base:{ type:["copyskill"], desc:"隨機複製我方上陣英雄技能" } },
     ];
 
     let selectedTeam = Array(13).fill(null);
 
-    /* ── Tooltip 控制 ── */
+    /* ══ Toast ══ */
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    /* ══ 清空隊伍 ══ */
+    function clearTeam() {
+        if (!selectedTeam.some(Boolean)) return;
+        /*增加確認框*/
+        /*if (!confirm('確定要清空所有上陣英雄嗎？')) return;*/
+        selectedTeam = Array(13).fill(null);
+        updateUI();
+        showToast('隊伍已清空');
+    }
+
+    /* ══ Modal 開關 ══ */
+    function openSaveModal() {
+        renderSaveSlots();
+        document.getElementById('saveNameInput').value = '';
+        document.getElementById('saveModal').classList.add('open');
+    }
+    function closeSaveModal() {
+        document.getElementById('saveModal').classList.remove('open');
+    }
+    // 點背景關閉
+    document.getElementById('saveModal').addEventListener('click', e => {
+        if (e.target === document.getElementById('saveModal')) closeSaveModal();
+    });
+
+    /* ══ 取得/寫入 localStorage ══ */
+    function getSaves() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+        catch { return []; }
+    }
+    function setSaves(arr) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    }
+
+    /* ══ 儲存目前隊伍 ══ */
+    function saveCurrentTeam() {
+        const name = document.getElementById('saveNameInput').value.trim();
+        if (!name) { showToast('請輸入隊伍名稱'); return; }
+        if (!selectedTeam.some(Boolean)) { showToast('隊伍是空的，無法儲存'); return; }
+
+        // 只存 id 和 currentMode，不存整個 hero 物件（避免 localStorage 爆掉）
+        const snapshot = selectedTeam.map(h => h ? { id: h.id, mode: h.currentMode } : null);
+
+        const saves = getSaves();
+        // 同名覆蓋
+        const existing = saves.findIndex(s => s.name === name);
+        const entry = { name, snapshot, time: new Date().toLocaleString('zh-TW') };
+        if (existing >= 0) saves[existing] = entry;
+        else saves.unshift(entry);
+
+        // 最多存 10 組
+        if (saves.length > 10) saves.splice(10);
+
+        setSaves(saves);
+        renderSaveSlots();
+        showToast(`「${name}」已儲存`);
+    }
+
+    /* ══ 載入隊伍 ══ */
+    function loadTeam(snapshot) {
+        selectedTeam = snapshot.map(s => {
+            if (!s) return null;
+            const hero = heroes.find(h => h.id === s.id);
+            if (!hero) return null;
+            return { ...hero, currentMode: s.mode || 'base' };
+        });
+        updateUI();
+        closeSaveModal();
+        showToast('隊伍已載入');
+    }
+
+    /* ══ 刪除存檔 ══ */
+    function deleteSave(name) {
+        if (!confirm(`確定刪除「${name}」？`)) return;
+        const saves = getSaves().filter(s => s.name !== name);
+        setSaves(saves);
+        renderSaveSlots();
+        showToast(`「${name}」已刪除`);
+    }
+
+    /* ══ 渲染存檔清單 ══ */
+    function renderSaveSlots() {
+        const saves = getSaves();
+        const list = document.getElementById('saveSlotList');
+        if (!saves.length) {
+            list.innerHTML = '<div style="color:#555; font-size:12px; text-align:center; padding:12px 0;">尚無儲存的隊伍</div>';
+            return;
+        }
+        list.innerHTML = saves.map(s => `
+            <div class="save-slot-item">
+                <div class="save-slot-name">${s.name}</div>
+                <div class="save-slot-time">${s.time}</div>
+                <button class="btn btn-gold"  style="padding:4px 10px; font-size:12px;" onclick="loadTeam(${JSON.stringify(s.snapshot).replace(/"/g, '&quot;')})">載入</button>
+                <button class="btn btn-red"   style="padding:4px 8px;  font-size:12px;" onclick="deleteSave('${s.name.replace(/'/g, "\\'")}')">✕</button>
+            </div>`).join('');
+    }
+
+    /* ══ Tooltip ══ */
     const tooltip = document.getElementById('heroTooltip');
     let tooltipTimer = null;
 
     function showTooltip(hero, mouseX, mouseY) {
-        // 填入內容
         document.getElementById('ttImg').style.backgroundImage = `url('${hero.img}')`;
         document.getElementById('ttName').textContent = hero.name;
-        document.getElementById('ttRarity').textContent = (rarityLabel[hero.rarity] || { label: hero.rarity }).label;
-        document.getElementById('ttRarity').style.color  = (rarityLabel[hero.rarity] || { color: "#fff" }).color;
+        const r = rarityLabel[hero.rarity] || { label: hero.rarity, color: '#fff' };
+        document.getElementById('ttRarity').textContent = r.label;
+        document.getElementById('ttRarity').style.color = r.color;
 
-        let body = `
-            <div class="tooltip-section">
-                <span class="tooltip-section-title base">基礎技能</span>
-                <div class="tooltip-desc">${formatDescription(hero.base.desc)}</div>
-            </div>`;
-
+        let body = `<div class="tooltip-section">
+            <span class="tooltip-section-title base">基礎技能</span>
+            <div class="tooltip-desc">${formatDescription(hero.base.desc)}</div>
+        </div>`;
         if (hero.canEvo && hero.evo && hero.evo.desc) {
-            body += `
-            <div class="tooltip-section">
+            body += `<div class="tooltip-section">
                 <span class="tooltip-section-title evo">鬪化技能</span>
                 <div class="tooltip-desc">${formatDescription(hero.evo.desc)}</div>
             </div>`;
         }
         document.getElementById('ttBody').innerHTML = body;
-
-        // 定位：預設顯示在滑鼠右上方，碰到視窗邊緣時翻到左側
         positionTooltip(mouseX, mouseY);
         tooltip.classList.add('visible');
     }
 
     function positionTooltip(mouseX, mouseY) {
-        const TW = 240 + 16; // tooltip 寬 + 間距
+        const TW = 260 + 16;
         const TH = tooltip.offsetHeight || 200;
         const vw = window.innerWidth;
         const vh = window.innerHeight;
-
         let left = mouseX + 14;
         let top  = mouseY - 10;
-
-        if (left + TW > vw) left = mouseX - TW + 2;  // 靠左顯示
-        if (top + TH > vh)  top  = vh - TH - 10;     // 往上移
+        if (left + TW > vw) left = mouseX - TW + 2;
+        if (top + TH > vh)  top  = vh - TH - 10;
         if (top < 8)        top  = 8;
-
         tooltip.style.left = left + 'px';
         tooltip.style.top  = top  + 'px';
     }
 
-    function hideTooltip() {
-        tooltip.classList.remove('visible');
-    }
+    function hideTooltip() { tooltip.classList.remove('visible'); }
 
-    /* ── 初始化 slot ── */
+    /* ══ 初始化 slot ══ */
     function initSlots() {
         const memberGrid = document.getElementById('memberGrid');
         memberGrid.innerHTML = "";
@@ -512,40 +715,37 @@
 
     function formatDescription(desc) {
         if (!desc) return "";
-        // 文字 → 圖片替換
         const imgConfig = {
-            "ATK":      "icons/sword.png",
-            "勝利之星":  "icons/star.png",
-            "魔法傷害":  "icons/magic.png",
-            "詛咒":      "icons/curse.png",
-            "吸血":      "icons/lifesteal.png"
+            "ATK":     "icons/sword.png",
+            "勝利之星": "icons/star.png",
+            "魔法傷害": "icons/magic.png",
+            "詛咒":     "icons/curse.png",
+            "換牌":     "icons/poker.png",
+            "吸取傷害": "icons/lifesteal.png",
+            "光環效果": "icons/halo.png",
         };
-
         let result = desc;
-
         for (const [word, src] of Object.entries(imgConfig)) {
-            result = result.replace(new RegExp(word, 'g'), 
-                /*調整圖示大小位置*/
+            result = result.replace(new RegExp(word, 'g'),
                 `<img src="${src}" style="height:1.2em; vertical-align:-0.25em;" title="${word}">`);
         }
-
         return result;
     }
 
-    /* ── 英雄列表（加入 tooltip 事件） ── */
+    /* ══ 英雄列表 ══ */
     function renderHeroes() {
         const list = document.getElementById('heroList');
         const activeFilters = Array.from(document.querySelectorAll('.type-filter:checked')).map(cb => cb.value);
 
         const filtered = heroes.filter(h => {
-            const allTypes = [...new Set([...h.base.type, ...(h.canEvo ? h.evo.type : [])])];
+            const allTypes = [...new Set([...h.base.type, ...(h.canEvo && h.evo ? h.evo.type : [])])];
             return allTypes.some(t => activeFilters.includes(t));
         });
 
         list.innerHTML = filtered.map(hero => {
             const isSelected = selectedTeam.some(s => s && s.id === hero.id);
             const matchedActive = activeFilters.filter(f =>
-                hero.base.type.includes(f) || (hero.canEvo && hero.evo.type.includes(f))
+                hero.base.type.includes(f) || (hero.canEvo && hero.evo && hero.evo.type.includes(f))
             );
             const onlyInEvo = hero.canEvo && matchedActive.every(f => !hero.base.type.includes(f));
             const evoHint = onlyInEvo ? `<div class="need-evo-hint">需鬪化</div>` : '';
@@ -560,10 +760,7 @@
                 </div>`;
         }).join('');
 
-        /* 掛 tooltip 事件（用事件委派，避免重複 bind） */
-        list.onmouseover = null;
-        list.onmousemove = null;
-        list.onmouseout  = null;
+        list.onmouseover = null; list.onmousemove = null; list.onmouseout = null;
 
         list.addEventListener('mouseover', e => {
             const item = e.target.closest('.hero-item');
@@ -573,16 +770,11 @@
             clearTimeout(tooltipTimer);
             tooltipTimer = setTimeout(() => showTooltip(hero, e.clientX, e.clientY), 80);
         });
-
         list.addEventListener('mousemove', e => {
-            if (tooltip.classList.contains('visible')) {
-                positionTooltip(e.clientX, e.clientY);
-            }
+            if (tooltip.classList.contains('visible')) positionTooltip(e.clientX, e.clientY);
         });
-
         list.addEventListener('mouseout', e => {
-            const item = e.target.closest('.hero-item');
-            if (!item) return;
+            if (!e.target.closest('.hero-item')) return;
             clearTimeout(tooltipTimer);
             hideTooltip();
         });
@@ -591,7 +783,7 @@
     function addHeroById(id) {
         const hero = heroes.find(h => h.id === id);
         if (!hero) return;
-        if (selectedTeam.some(s => s && s.id === id)) { alert("隊伍中已存在此英雄！"); return; }
+        if (selectedTeam.some(s => s && s.id === id)) { showToast('隊伍中已存在此英雄'); return; }
         const idx = selectedTeam.findIndex(s => s === null);
         if (idx !== -1) {
             selectedTeam[idx] = { ...hero, currentMode: 'base' };
@@ -604,7 +796,7 @@
         renderHeroes();
     }
 
-    /* ── 主 UI 更新 ── */
+    /* ══ 主 UI 更新 ══ */
     function updateUI() {
         for (let i = 0; i <= 12; i++) {
             const hero  = selectedTeam[i];

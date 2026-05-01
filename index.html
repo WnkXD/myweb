@@ -372,6 +372,7 @@
     <div class="filter-item"><input type="checkbox" class="type-filter" value="heal"      checked onchange="renderHeroes()"> 恢復生命</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="cardsteal" checked onchange="renderHeroes()"> 偷取換牌</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="copyskill" checked onchange="renderHeroes()"> 複製技能</div>
+    <div class="filter-item"><input type="checkbox" class="type-filter" value="guard"     checked onchange="renderHeroes()"> 光之守護</div>
 
     <h3 class="filter-title">狀態異常</h3>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="blind"     checked onchange="renderHeroes()"> 手牌盲目</div>
@@ -467,7 +468,7 @@
     const typeNames = {
         star:"勝利之星", cursedmg:"咒印傷害", magic:"法傷", lifesteal:"吸血", pointdmg:"點數傷害",
         addpower:"增加能量", point:"增加點數", magicbuff:"法傷增幅",
-        heal:"恢復生命", addcard:"換牌", copyskill:"複製技能",
+        heal:"恢復生命", addcard:"換牌", copyskill:"複製技能", guard:"光之守護",
         curse:"詛咒",
         weapondmg:"武器傷害", delpower:"降低祕法", cardsteal:"偷取換牌",
         cover:"狀態異常", blind:"狀態異常", charm:"狀態異常", blockcard:"狀態異常",
@@ -498,23 +499,19 @@
           base:{ type:["charm","lifesteal","magic"], 
             desc:"敵方ATK最高的 <h>2</h> 位英雄進入魅惑狀態<br>\
                 單回合：<br>封鎖 換牌 <h>2</h> 回合，給予 <h>8000</h> 魔法傷害<br>\
-                雙回合：<br>封鎖祕法 <h>2</h> 回合，依回合數 x <h>1800</h> 吸取傷害" } 
-        },
+                雙回合：<br>封鎖祕法 <h>2</h> 回合，依回合數 x <h>1800</h> 吸取傷害" } },
         { id:5, name:"邱比特", img:"heroes/gold/邱比特.png", rarity:"gold", canEvo:false,
           base:{ type:["addcard","cover","blind","delpower","star"],
             desc:"光環效果 我方手牌ATK提升 <h>1.2</h> 倍\
                 <br>單回合：<br>遮蓋 <h>10</h> 張撲克牌，依勝利之星 x <h>1</h> 張增加 換牌\
-                <br>雙回合：<br>下回合 <h>5</h> 張手牌盲目，依勝利之星 x <h>10</h> 降低祕法能量" } 
-        },
+                <br>雙回合：<br>下回合 <h>5</h> 張手牌盲目，依勝利之星 x <h>10</h> 降低祕法能量" } },
         { id:6, name:"闇影喵師", img:"heroes/purple/闇影喵師.png", rarity:"purple", canEvo:true,
           base:{ type:["curse","heal"], desc:"敵方手牌陷入 <h>10</h> 個 詛咒<br>每回合恢復 <h>4000</h> HP，持續3回合" },
           evo: { type:["curse","cursedmg","lifesteal","pointdmg"],
-            desc:"給予敵方手牌詛咒 x <h>1800</h> 的咒印傷害<br>依牌型點數 x <h>100</h> 吸取傷害<br>被攻擊的英雄，每回合手牌陷入 <h>3</h> 個 詛咒" } 
-        },
+          desc:"給予敵方手牌詛咒 x <h>1800</h> 的咒印傷害<br>依牌型點數 x <h>100</h> 吸取傷害<br>被攻擊的英雄，每回合手牌陷入 <h>3</h> 個 詛咒" } },
         { id:7, name:"烏爾德", img:"heroes/gold/烏爾德.png", rarity:"gold", canEvo:false,
-          base:{ type:["point","magic","addcard"],
-            desc:"依牌型點數 x <h>500</h> 給予 魔法傷害<br>我方三個陣地點數增加 <h>200</h> 點，持續兩回合<br>增加 <h>10</h> 張 換牌" } 
-        },
+          base:{ type:["point","magic","addcard","pointdmg"],
+          desc:"依牌型點數 x <h>500</h> 給予 魔法傷害<br>我方三個陣地點數增加 <h>200</h> 點，<br>持續兩回合<br>增加 <h>10</h> 張 換牌" } },
         { id:8, name:"驅魔師", img:"heroes/blue/驅魔師.png", rarity:"blue", canEvo:true,
           base:{ type:["addcard","magic"], desc:"依敵方當前HP的 <h>23%</h> 給予 魔法傷害<br>增加 <h>2</h> 張 換牌" },
           evo: { type:["star","magic","addcard"], desc:"依 勝利之星 x <h>1800</h> 給予 魔法傷害<br>增加 <h>3</h> 張 換牌" } },
@@ -526,6 +523,20 @@
           evo: { type:["star","magic","curse"], desc:"敵方手牌陷入 勝利之星 x <h>1</h> 個 詛咒<br>以隊伍總ATK的 <h>25%</h> 給予 魔法傷害" } },
         { id:11, name:"梅林", img:"heroes/gold/梅林.png", rarity:"gold", canEvo:false,
           base:{ type:["copyskill"], desc:"隨機複製我方上陣英雄技能" } },
+        { id:12, name:"關羽", img:"heroes/gold/關羽.png", rarity:"gold", canEvo:false,
+          base:{ type:["pointdmg","magic","lifesteal"],
+          desc:"依牌型點數 x <h>300</h> 提升 ATK<br>\
+                依牌型點數 x <h>300</h> 給予 魔法傷害<br>\
+                依牌型點數 x <h>300</h> 吸取傷害" } },
+        { id:13, name:"海姆達爾", img:"heroes/gold/海姆達爾.png", rarity:"gold", canEvo:false,
+          base:{ type:["point","guard"], desc:"光之守護 <h>3</h> 回合，免疫負面狀態<br>隨機兩個陣地牌型點數增加 <h>35</h> 點" } },
+        { id:14, name:"御魔劍士", img:"heroes/purple/御魔劍士.png", rarity:"purple", canEvo:true,
+          base:{ type:["pointdmg","magic"], desc:"依牌型點數 x <h>100</h> 提升 ATK<br>再給予 <h>6000</h> 魔法傷害" },
+          evo: { type:["pointdmg","magic","lifesteal"],
+          desc:"依牌型點數 x <h>100</h> 提升 ATK<br>\
+               依牌型點數 x <h>100</h> 給予 魔法傷害<br>\
+               依牌型點數 x <h>100</h> 吸取傷害" } },
+        
     ];
 
     let selectedTeam = Array(13).fill(null);

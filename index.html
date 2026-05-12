@@ -362,6 +362,7 @@
     <div class="filter-item"><input type="checkbox" class="type-filter" value="cursedmg"  checked onchange="renderHeroes()"> 咒印傷害</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="magic"     checked onchange="renderHeroes()"> 魔法傷害</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="lifesteal" checked onchange="renderHeroes()"> 吸血傷害</div>
+    <div class="filter-item"><input type="checkbox" class="type-filter" value="guarddmg"  checked onchange="renderHeroes()"> 破盾傷害</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="pointdmg"  checked onchange="renderHeroes()"> 牌型點數傷害</div>
 
     <h3 class="filter-title">輔助技能</h3>
@@ -373,13 +374,13 @@
     <div class="filter-item"><input type="checkbox" class="type-filter" value="cardsteal" checked onchange="renderHeroes()"> 偷取換牌</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="copyskill" checked onchange="renderHeroes()"> 複製技能</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="guard"     checked onchange="renderHeroes()"> 光之守護</div>
+    <div class="filter-item"><input type="checkbox" class="type-filter" value="atkup"     checked onchange="renderHeroes()"> 攻擊提升</div>
 
     <h3 class="filter-title">狀態異常</h3>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="blind"     checked onchange="renderHeroes()"> 手牌盲目</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="cover"     checked onchange="renderHeroes()"> 遮蓋撲克牌</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="curse"     checked onchange="renderHeroes()"> 詛咒</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="charm"     checked onchange="renderHeroes()"> 魅惑</div>
-    <div class="filter-item"><input type="checkbox" class="type-filter" value="weapondmg" checked onchange="renderHeroes()"> 武器傷害</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="delpower"  checked onchange="renderHeroes()"> 降低祕法能量</div>
     <div class="filter-item"><input type="checkbox" class="type-filter" value="blockcard" checked onchange="renderHeroes()"> 封鎖英雄</div>
 </div>
@@ -407,8 +408,10 @@
             </div>
 
             <div class="analysis-panel">
-                <h4 style="margin:0 0 15px 0; color:var(--accent-color); border-bottom:1px solid #444; padding-bottom:5px;">隊伍戰術分析</h4>
-                <div id="statPanel"></div>
+                <h4 style="margin:0 0 10px 0; color:var(--accent-color); border-bottom:1px solid #444; padding-bottom:5px;">隊伍戰術分析</h4>
+                <div style="position:relative; width:100%; height:230px;">
+                    <canvas id="radarChart" role="img" aria-label="五邊形戰術分析雷達圖：輸出、Buff、輔助、控制、恢復"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -466,11 +469,11 @@
     const STORAGE_KEY = 'team_saves_v1';
 
     const typeNames = {
-        star:"勝利之星", cursedmg:"咒印傷害", magic:"法傷", lifesteal:"吸血", pointdmg:"點數傷害",
+        star:"勝利之星", cursedmg:"咒印傷害", magic:"法傷", lifesteal:"吸血", pointdmg:"點數傷害", guarddmg:"破盾傷害",
         addpower:"增加能量", point:"增加點數", magicbuff:"法傷增幅",
-        heal:"恢復生命", addcard:"換牌", copyskill:"複製技能", guard:"光之守護",
+        heal:"恢復生命", addcard:"換牌", copyskill:"複製技能", guard:"光之守護",atkup:"攻擊提升",
         curse:"詛咒",
-        weapondmg:"武器傷害", delpower:"降低祕法", cardsteal:"偷取換牌",
+        delpower:"降低祕法", cardsteal:"偷取換牌",
         cover:"狀態異常", blind:"狀態異常", charm:"狀態異常", blockcard:"狀態異常",
         abnormal:"狀態異常"
     };
@@ -489,12 +492,12 @@
 
     const heroes = [
         { id:1, name:"布倫希爾德", img:"heroes/gold/布倫希爾德.png", rarity:"gold", canEvo:false,
-          base:{ type:["star","weapondmg"], desc:"依據 勝利之星 x <h>1700</h> 提升ATK<br>依 ATK 再給予 魔法傷害<br>被攻擊的英雄，每回合給予破損效果" } },
+          base:{ type:["star"], desc:"依據 勝利之星 x <h>1700</h> 提升ATK<br>依 ATK 再給予 魔法傷害<br>被攻擊的英雄，每回合給予破損效果" } },
         { id:2, name:"凱伊", img:"heroes/gold/凱伊.png", rarity:"gold", canEvo:false,
-          base:{ type:["star","weapondmg"], desc:"ATK 提升 <h>1</h> +(勝利之星 x <h>0.7</h> 倍)<br>被攻擊的英雄，受到重擊效果" } },
+          base:{ type:["star"], desc:"ATK 提升 <h>1</h> +(勝利之星 x <h>0.7</h> 倍)<br>被攻擊的英雄，受到重擊效果" } },
         { id:3, name:"伊瑟", img:"heroes/gold/伊瑟.png", rarity:"gold", canEvo:true,
           base:{ type:["addcard","magicbuff"], desc:"我方三個陣地 魔法傷害增強 <h>1.8</h> 倍<br>增加 <h>3</h> 張 換牌" },
-          evo: { type:["magicbuff","addcard"], desc:"我方一個陣地 魔法傷害增強 <h>3.2</h> 倍，持續兩回合<br>增加 <h>4</h> 張 換牌"} },
+          evo: { type:["magicbuff","addcard"], desc:"我方一個陣地 魔法傷害增強 <h>3.2</h> 倍<br>持續兩回合<br>增加 <h>4</h> 張 換牌"} },
         { id:4, name:"赫拉薇絲", img:"heroes/gold/赫拉薇絲.png", rarity:"gold", canEvo:false,
           base:{ type:["charm","lifesteal","magic"], 
             desc:"敵方ATK最高的 <h>2</h> 位英雄進入魅惑狀態<br>\
@@ -503,8 +506,8 @@
         { id:5, name:"邱比特", img:"heroes/gold/邱比特.png", rarity:"gold", canEvo:false,
           base:{ type:["addcard","cover","blind","delpower","star"],
             desc:"光環效果 我方手牌ATK提升 <h>1.2</h> 倍\
-                <br>單回合：<br>遮蓋 <h>10</h> 張撲克牌，依勝利之星 x <h>1</h> 張增加 換牌\
-                <br>雙回合：<br>下回合 <h>5</h> 張手牌盲目，依勝利之星 x <h>10</h> 降低祕法能量" } },
+                <br>單回合：<br>遮蓋 <h>10</h> 張撲克牌，依勝利之星 x <h>1</h> 增加 換牌\
+                <br>雙回合：<br><h>5</h> 張手牌盲目，依勝利之星 x <h>10</h> 降低祕法能量" } },
         { id:6, name:"闇影喵師", img:"heroes/purple/闇影喵師.png", rarity:"purple", canEvo:true,
           base:{ type:["curse","heal"], desc:"敵方手牌陷入 <h>10</h> 個 詛咒<br>每回合恢復 <h>4000</h> HP，持續3回合" },
           evo: { type:["curse","cursedmg","lifesteal","pointdmg"],
@@ -534,8 +537,14 @@
           base:{ type:["pointdmg","magic"], desc:"依牌型點數 x <h>100</h> 提升 ATK<br>再給予 <h>6000</h> 魔法傷害" },
           evo: { type:["pointdmg","magic","lifesteal"],
           desc:"依牌型點數 x <h>100</h> 提升 ATK<br>\
-               依牌型點數 x <h>100</h> 給予 魔法傷害<br>\
-               依牌型點數 x <h>100</h> 吸取傷害" } },
+                依牌型點數 x <h>100</h> 給予 魔法傷害<br>\
+                依牌型點數 x <h>100</h> 吸取傷害" } },
+        { id:15, name:"維納斯", img:"heroes/gold/維納斯.png", rarity:"gold", canEvo:true,
+          base:{ type:["charm","atkup"], desc:"敵方下回合 <h>2</h> 張手牌魅惑<br>讓下一道英雄ATK提升 <h>1.8</h> 倍<br>我方手牌ATK提升 <h>1.2</h> 倍" },
+          evo: { type:["atkup"], desc:"我方手牌ATK提升 <h>1.6</h> 倍<br>淨化手牌負面效果<br>封鎖祕法 <h>2</h> 回合" }  },
+        { id:16, name:"古爾維格", img:"heroes/gold/古爾維格.png", rarity:"gold", canEvo:true,
+          base:{ type:["magicbuff","lifesteal"], desc:"敵方下回合 <h>2</h> 張手牌魅惑<br>讓下一道英雄ATK提升 <h>1.8</h> 倍<br>我方手牌ATK提升 <h>1.2</h> 倍" },
+          evo: { type:["atkup"], desc:"我方手牌ATK提升 <h>1.6</h> 倍<br>淨化手牌負面效果<br>封鎖祕法 <h>2</h> 回合" }  },
         
     ];
 
@@ -846,15 +855,69 @@
                 stats[key] = (stats[key] || 0) + 1;
             });
         });
-        const keys = Object.keys(stats).sort((a,b) => stats[b]-stats[a]);
-        document.getElementById('statPanel').innerHTML = keys.length
-            ? keys.map(k => `
-                <div class="stat-row">
-                    <div class="stat-label">${typeNames[k] || k}</div>
-                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${(stats[k]/13)*100}%"></div></div>
-                    <div class="stat-count">${stats[k]}</div>
-                </div>`).join('')
-            : '<div style="color:#555; font-size:14px; text-align:center; margin-top:20px;">無戰術數據</div>';
+        /* ══ 五邊形分類對應 ══ */
+        const radarCategories = [
+            { label: "輸出", types: ["star","cursedmg","magic","lifesteal","guarddmg","pointdmg"] },
+            { label: "Buff",   types: ["magicbuff","guard","atkup"] },
+            { label: "輔助", types: ["addcard","addpower","point","cardsteal","copyskill"] },
+            { label: "控制", types: ["blind","cover","curse","charm","delpower","blockcard"] },
+            { label: "恢復", types: ["heal"] },
+        ];
+
+        // 計算各大項分數（每個細項技能+1，上限13）
+        const radarScores = radarCategories.map(cat => {
+            let score = 0;
+            active.forEach(h => {
+                h[h.currentMode].type.forEach(t => {
+                    if (cat.types.includes(t)) score++;
+                });
+            });
+            return score;
+        });
+
+        // 初始化或更新雷達圖
+        if (!window._radarChart) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            window._radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: radarCategories.map(c => c.label),
+                    datasets: [{
+                        data: radarScores,
+                        backgroundColor: 'rgba(255,204,0,0.18)',
+                        borderColor: '#ffcc00',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#ffcc00',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 20,
+                            ticks: {
+                                stepSize: 5,
+                                display: false,
+                            },
+                            grid: { color: '#444' },
+                            angleLines: { color: '#444' },
+                            pointLabels: {
+                                color: '#ffcc00',
+                                font: { size: 13, weight: 'bold', family: '"Microsoft JhengHei", Arial, sans-serif' }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            window._radarChart.data.datasets[0].data = radarScores;
+            window._radarChart.update();
+        }
 
         /* 詳細說明 */
         const infoList = document.getElementById('teamInfoList');
@@ -887,5 +950,6 @@
     renderHeroes();
     updateUI();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </body>
 </html>

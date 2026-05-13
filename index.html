@@ -547,7 +547,7 @@
           evo: { type:["atkup","purify"], desc:"我方手牌ATK提升 <h>1.6</h> 倍<br>淨化手牌負面效果<br>封鎖祕法 <h>2</h> 回合" }  },
         { id:16, name:"古爾維格", img:"heroes/gold/古爾維格.png", rarity:"gold", canEvo:true,
           base:{ type:["magicbuff","lifesteal","guarddmg"], desc:"下一道英雄 魔法傷害 提升 <h>1.7</h> 倍<br>依敵方護盾上限 <h>70%</h> 破盾傷害<br>依敵方祕法 x <h>70</h> 吸取傷害" },
-          evo: { type:["curse","cursedmg"], desc:"[戰吼] 敵方ATK最高以及最低英雄陷入 <h>5</h> 個 詛咒<br>給予敵方手牌 詛咒 x <h>10000</h> 咒印傷害" }  },
+          evo: { type:["curse","cursedmg"], desc:"戰吼 給敵方ATK最高、最低英雄 <h>5</h> 個 詛咒<br>給予敵方手牌詛咒 x <h>10000</h> 的咒印傷害" }  },
         { id:17, name:"伏羲", img:"heroes/gold/伏羲.png", rarity:"gold", canEvo:true,
           base:{ type:["magicbuff","lifestealbuff","counterbuff"], desc:"下回合隨機兩個陣地<br>反擊傷害 增強 <h>1.7</h> 倍<br>魔法傷害 增強 <h>1.7</h> 倍<br>吸取傷害 增強 <h>1.7</h> 倍" },
           evo: { type:["magicbuff","counterbuff","purify"], 
@@ -751,6 +751,7 @@
             "吸取傷害": "icons/lifesteal.png",
             "光環效果": "icons/halo.png",
             "反擊傷害": "icons/counter.png",
+            "戰吼":     "icons/roar.png",
         };
         let result = desc;
         for (const [word, src] of Object.entries(imgConfig)) {

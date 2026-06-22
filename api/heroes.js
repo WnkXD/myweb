@@ -3,7 +3,7 @@ export default function handler(req, res) {
     if (!referer.includes('project-15kz8.vercel.app')) {
         return res.status(403).json({ error: 'forbidden' });
     }
-    res.statsus(200).json([
+    res.status(200).json([
         { id:1, name:"布倫希爾德", img:"heroes/gold/布倫希爾德.png", rarity:"gold", canEvo:false,
           base:{ type:["star"], desc:"依據 勝利之星 x <h>1700</h> 提升ATK<br>依 ATK 再給予 魔法傷害<br>被攻擊的英雄，每回合給予破損效果" } },
         { id:2, name:"凱伊", img:"heroes/gold/凱伊.png", rarity:"gold", canEvo:false,
